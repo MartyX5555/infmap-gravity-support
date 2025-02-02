@@ -14,7 +14,7 @@ TESTGRAVITY.prop_container = TESTGRAVITY.prop_container or {}
 local function SetGravity(ent, physobj, dir, gravity)
 
 	local prop_container = TESTGRAVITY.prop_container
-	local HasOriginalDir = dir:GetNormalized() == Vector(0,0,1)
+	local HasOriginalDir = dir:GetNormalized() == vector_up
 	if gravity == 0 then --print("no gravity")
 		physobj:OriginalEnableGravity(false)
 
@@ -77,7 +77,7 @@ local function EnvironmentCheck()
 		-- Infmap planets
 		if not MapData.ignoreinfplanets and IsEntityInInfMapPlanet(ent) then
 
-			gravdir = gravdir + Vector(0,0,1) * TESTGRAVITY_EARTH_GRAVITY
+			gravdir = gravdir + vector_up * TESTGRAVITY_EARTH_GRAVITY
 			finalgravity = finalgravity + TESTGRAVITY_EARTH_GRAVITY
 		end
 
@@ -109,7 +109,7 @@ local function EnvironmentCheck()
 					elseif planet.gravtype == "flat" then
 
 						cgravity = planet.gravity
-						cgravdir = Vector(0,0,1) * cgravity
+						cgravdir = vector_up * cgravity
 					end
 
 					gravdir = gravdir + cgravdir
@@ -132,7 +132,7 @@ local function EnvironmentCheck()
 
 				local cgravity = surfacedata.gravity * realratio
 
-				gravdir = gravdir + Vector(0,0,1) * cgravity
+				gravdir = gravdir + vector_up * cgravity
 				finalgravity = finalgravity + cgravity
 
 			end
