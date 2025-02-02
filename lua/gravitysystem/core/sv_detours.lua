@@ -1,4 +1,4 @@
-local TESTGRAVITY = TESTGRAVITY
+local GRAVSYSTEM = GRAVSYSTEM
 --[[
 	I would had loved to not hack or interfiere with the gmod functions, but this time it was a need for this to work.
 	Since we need to avoid systems and people not to enable the gravity of props while they are in the void (aka low gravity or none) but the addon to control that only.
@@ -7,7 +7,7 @@ local TESTGRAVITY = TESTGRAVITY
 	Just make sure to build your vehicles on earthlike gravity, to preserve the gravity bool during copy operations.
 ]]
 timer.Simple(0, function()
-	if not TESTGRAVITY.IsThisMapSupported() then return end
+	if not GRAVSYSTEM.IsThisMapSupported() then return end
 
 	local PHYSOBJ = FindMetaTable("PhysObj")
 	if not PHYSOBJ.OriginalEnableGravity then
@@ -21,7 +21,7 @@ timer.Simple(0, function()
 		local cgravity = ent.cgravityvalue
 		local normgravdir = isvector(ent.cgravitydirection) and ent.cgravitydirection:GetNormalized() or vector_up
 		local HasOriginalDir = normgravdir == vector_up
-		if cgravity == TESTGRAVITY_EARTH_GRAVITY and HasOriginalDir then
+		if cgravity == GRAVSYSTEM_EARTH_GRAVITY and HasOriginalDir then
 
 			if not bool then
 				ent.CustomGravity = true

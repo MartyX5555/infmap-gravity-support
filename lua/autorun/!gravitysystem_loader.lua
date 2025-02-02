@@ -1,4 +1,4 @@
-TESTGRAVITY = TESTGRAVITY or {}
+GRAVSYSTEM = GRAVSYSTEM or {}
 
 do
 	-- The name of the folder for the loader. Relative to lua folder

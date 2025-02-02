@@ -1,5 +1,5 @@
 
-TESTGRAVITY.prop_container = TESTGRAVITY.prop_container or {}
+GRAVSYSTEM.prop_container = GRAVSYSTEM.prop_container or {}
 
 --[[
 	sets the gravity to props that can (or potentially) move.
@@ -13,12 +13,12 @@ TESTGRAVITY.prop_container = TESTGRAVITY.prop_container or {}
 
 local function SetGravity(ent, physobj, dir, gravity)
 
-	local prop_container = TESTGRAVITY.prop_container
+	local prop_container = GRAVSYSTEM.prop_container
 	local HasOriginalDir = dir:GetNormalized() == vector_up
 	if gravity == 0 then --print("no gravity")
 		physobj:OriginalEnableGravity(false)
 
-	elseif gravity ~= TESTGRAVITY_EARTH_GRAVITY or not HasOriginalDir then --print("prop uses custom gravity")
+	elseif gravity ~= GRAVSYSTEM_EARTH_GRAVITY or not HasOriginalDir then --print("prop uses custom gravity")
 
 		if not prop_container[ent] then
 			prop_container[ent] = true
@@ -40,7 +40,7 @@ end
 
 -- Is the entity inside of a planet?
 local function IsEntityInInfMapPlanet(ent)
-
+	if not InfMap.planet_chunk_table then return end
 	for _, planet in pairs(InfMap.planet_chunk_table) do
 		if not IsValid(planet) then continue end
 		local PlanetPos = planet:GetPos()
@@ -58,12 +58,12 @@ end
 local cmap = game.GetMap()
 local fakezero = 0.00000000000001 -- ply:SetGravity doenst remove the gravity at 0, but adding more zeroes does the trick, cool.
 local function EnvironmentCheck()
-	if not TESTGRAVITY.IsThisMapSupported() then return end
+	if not GRAVSYSTEM.IsThisMapSupported() then return end
 
-	local MapData = TESTGRAVITY.Maps[cmap]
+	local MapData = GRAVSYSTEM.Maps[cmap]
 	local PlanetData = MapData.Planets
 
-	local GlobalEnts = TESTGRAVITY.GlobalEnts
+	local GlobalEnts = GRAVSYSTEM.GlobalEnts
 	-- Prop gravity pull
 	for ent, _ in pairs(GlobalEnts) do
 		if not IsValid(ent) then continue end
@@ -77,8 +77,8 @@ local function EnvironmentCheck()
 		-- Infmap planets
 		if not MapData.ignoreinfplanets and IsEntityInInfMapPlanet(ent) then
 
-			gravdir = gravdir + vector_up * TESTGRAVITY_EARTH_GRAVITY
-			finalgravity = finalgravity + TESTGRAVITY_EARTH_GRAVITY
+			gravdir = gravdir + vector_up * GRAVSYSTEM_EARTH_GRAVITY
+			finalgravity = finalgravity + GRAVSYSTEM_EARTH_GRAVITY
 		end
 
 		-- User created planets
@@ -145,7 +145,7 @@ local function EnvironmentCheck()
 	for _, ply in pairs(player.GetAll()) do
 
 		local finalgravity = fakezero
-		if IsEntityInInfMapPlanet(ply) then
+		if not MapData.ignoreinfplanets and IsEntityInInfMapPlanet(ply) then
 			finalgravity = finalgravity + 1
 		end
 
@@ -166,7 +166,7 @@ local function EnvironmentCheck()
 					local cgravity = 0
 
 					if planet.gravtype == "flat" then -- supports flat type ATM
-						local adaptratio = (planet.gravity / TESTGRAVITY_EARTH_GRAVITY)
+						local adaptratio = (planet.gravity / GRAVSYSTEM_EARTH_GRAVITY)
 						cgravity = adaptratio
 					end
 
@@ -183,7 +183,7 @@ local function EnvironmentCheck()
 			local ratio = math.Clamp(height / surfacedata.gravmaxheight, 0, 1)
 			local realratio = (1 + fakezero) - ratio
 
-			local adaptratio = (surfacedata.gravity / TESTGRAVITY_EARTH_GRAVITY) * realratio
+			local adaptratio = (surfacedata.gravity / GRAVSYSTEM_EARTH_GRAVITY) * realratio
 
 			finalgravity = finalgravity + adaptratio
 		end
@@ -197,9 +197,9 @@ hook.Add("Think", "InfMap.GravitySystem.EnvironmentCheck", EnvironmentCheck)
 
 
 local function MonitorProps()
-	if not TESTGRAVITY.IsThisMapSupported() then return end
+	if not GRAVSYSTEM.IsThisMapSupported() then return end
 
-	local prop_container = TESTGRAVITY.prop_container
+	local prop_container = GRAVSYSTEM.prop_container
 	for ent,_ in pairs(prop_container) do
 		if not IsValid(ent) then continue end
 		local phys = ent:GetPhysicsObject()

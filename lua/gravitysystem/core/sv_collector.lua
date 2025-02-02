@@ -1,8 +1,8 @@
-local TESTGRAVITY = TESTGRAVITY
+local GRAVSYSTEM = GRAVSYSTEM
 
 
-TESTGRAVITY.GlobalEnts = TESTGRAVITY.GlobalEnts or {}
-TESTGRAVITY.BlacklistedEntities = { -- A list of classes that should not be added into the list.
+GRAVSYSTEM.GlobalEnts = GRAVSYSTEM.GlobalEnts or {}
+GRAVSYSTEM.BlacklistedEntities = { -- A list of classes that should not be added into the list.
 	player       = true,
 	prop_door    = true,
 	prop_dynamic = true,
@@ -11,7 +11,7 @@ TESTGRAVITY.BlacklistedEntities = { -- A list of classes that should not be adde
 }
 
 local function HasBlacklistedPatterns(class)
-	for pattern, _ in pairs(TESTGRAVITY.BlacklistedEntities) do
+	for pattern, _ in pairs(GRAVSYSTEM.BlacklistedEntities) do
 		if string.StartsWith(class, pattern) then
 			return true
 		end
@@ -28,7 +28,7 @@ local function AddEntity(ent)
 		local physobj = ent:GetPhysicsObject()
 		if not IsValid(physobj) then return end
 
-		local GlobalEnts = TESTGRAVITY.GlobalEnts
+		local GlobalEnts = GRAVSYSTEM.GlobalEnts
 		GlobalEnts[ent] = true
 		ent:CallOnRemove("infmap_gravity", function()
 			GlobalEnts[ent] = nil
