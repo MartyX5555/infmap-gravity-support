@@ -19,7 +19,8 @@ timer.Simple(0, function()
 		if not IsValid(ent) then return end
 
 		local cgravity = ent.cgravityvalue
-		local HasOriginalDir = ent.cgravitydirection:GetNormalized() == Vector(0,0,1)
+		local normgravdir = isvector(ent.cgravitydirection) and ent.cgravitydirection:GetNormalized() or Vector(0,0,1)
+		local HasOriginalDir = normgravdir == Vector(0,0,1)
 		if cgravity == TESTGRAVITY_EARTH_GRAVITY and HasOriginalDir then
 
 			if not bool then

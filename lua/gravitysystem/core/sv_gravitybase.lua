@@ -61,7 +61,7 @@ local function EnvironmentCheck()
 	if not TESTGRAVITY.IsThisMapSupported() then return end
 
 	local MapData = TESTGRAVITY.Maps[cmap]
-	PlanetData = MapData.Planets
+	local PlanetData = MapData.Planets
 
 	local GlobalEnts = TESTGRAVITY.GlobalEnts
 	-- Prop gravity pull
@@ -75,14 +75,14 @@ local function EnvironmentCheck()
 		local finalgravity = 0
 
 		-- Infmap planets
-		if IsEntityInInfMapPlanet(ent) then
+		if not MapData.ignoreinfplanets and IsEntityInInfMapPlanet(ent) then
 
 			gravdir = gravdir + Vector(0,0,1) * TESTGRAVITY_EARTH_GRAVITY
 			finalgravity = finalgravity + TESTGRAVITY_EARTH_GRAVITY
 		end
 
 		-- User created planets
-		if PlanetData and next(PlanetData) then
+		if MapData.hascustomplanets then
 
 			local entpos = ent:GetPos()
 			for _, planet in pairs(PlanetData) do
@@ -119,7 +119,7 @@ local function EnvironmentCheck()
 			end
 		end
 
-		if MapData and next(MapData) then
+		if MapData.hassurface then
 			local surfacedata = MapData.surfacedata
 
 			local entpos = ent:GetPos()
@@ -150,7 +150,7 @@ local function EnvironmentCheck()
 		end
 
 		-- User created planets
-		if PlanetData and next(PlanetData) then
+		if MapData.hascustomplanets then
 
 			local entpos = ply:GetPos()
 			for _, planet in pairs(PlanetData) do
@@ -175,7 +175,7 @@ local function EnvironmentCheck()
 			end
 		end
 
-		if MapData and next(MapData) then
+		if MapData.hassurface then
 			local surfacedata = MapData.surfacedata
 
 			local entpos = ply:GetPos()
@@ -210,7 +210,7 @@ local function MonitorProps()
 			local dt = engine.TickInterval() -- The time interval over which the force acts on the object (in seconds)
 			phys:ApplyForceCenter( force * dt ) -- Multiplying the two gives us the impulse in kg*source_unit/s
 
-			debugoverlay.Line(ent:GetPos(),ent:GetPos() - dir * 1000, 0.1, Color(0,255,115), true)
+			debugoverlay.Line(ent:GetPos(),ent:GetPos() - dir * 10, 0.1, Color(0,255,115), true)
 		end
 	end
 end
