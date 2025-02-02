@@ -1,94 +1,5 @@
-TESTGRAVITY = TESTGRAVITY or {}
-TESTGRAVITY.GlobalEnts = TESTGRAVITY.GlobalEnts or {}
+
 TESTGRAVITY.prop_container = TESTGRAVITY.prop_container or {}
-TESTGRAVITY.BlacklistedEntities = { -- A list of classes that should not be added into the list.
-	player       = true,
-	prop_door    = true,
-	prop_dynamic = true,
-	func_        = true,
-	infmap_      = true,
-}
-
--- Global values for the sake of the user.
-TESTGRAVITY_EARTH_GRAVITY = 9.80665
-TESTGRAVITY_MOON_GRAVITY = 1.6249
-TESTGRAVITY_VENUS_GRAVITY = 8.87
-TESTGRAVITY_JUPITER_GRAVITY = 24.79
-
-TESTGRAVITY.Maps = {}
-function TESTGRAVITY.RegisterMap( mapname, data )
-	TESTGRAVITY.Maps[mapname] = data
-	print("[Gravity System] - Added Support for the map '" .. mapname .. "' ")
-end
-
--- For the alenxadrovich obj planets
-function TESTGRAVITY.RegisterPlanet( id, map, data )
-	local MapData = TESTGRAVITY.Maps[map]
-	if not MapData or not next(MapData) then ErrorNoHalt("Attempting to register a planet with a non-existant mapdata!!!") return end
-	MapData.Planets = MapData.Planets or {}
-	MapData.Planets[id] = data
-	print("[Gravity System] - Registered Planet '" .. map .. "'")
-end
-
-local MapName = game.GetMap()
--- Supported maps. If your map needs gravity support, use the function below with the required info
--- If infmaps planets are detected in the registered map, they will be automatically supported.
-TESTGRAVITY.RegisterMap( MapName, {
-
-	-- If it has a surface, a flat, infinite horizontal gravity layer will be put in the map.
-	hassurface = true,
-	surfacedata = {
-		gravity = TESTGRAVITY_EARTH_GRAVITY, -- m/s^2
-		gravsealevel = 0, -- Z value to define the sea level. unused atm.
-		gravlossheight = 1000000, -- height where gravity starts to decrease
-		gravmaxheight = 3000000, -- maximum height before gravity is completely off.
-	},
-} )
-
--- If your map has obj like planets or non infmaps one.
--- For the alenxadrovich obj planets
-TESTGRAVITY.RegisterPlanet( "earthtest", MapName, {
-	origin = Vector(0,0,5000000), -- The planet's center
-	gravtype = "flat", -- available types: spherical, flat. This change the gravity direction inside of area.
-	gravity = TESTGRAVITY_EARTH_GRAVITY,
-	gravlossheight = 10000, -- height where gravity starts to decrease. spherical type only.
-	gravmaxheight = 10000, -- maximum height before gravity is completely off.
-} )
-
-local MapData = TESTGRAVITY.Maps[MapName]
-local PlanetData = MapData.Planets
-if not MapData or not next(MapData) then return end
---------- Execute the code below ONLY if the map has actual support to this addon.
-
-
-local function HasBlacklistedPatterns(class)
-	for pattern, _ in pairs(TESTGRAVITY.BlacklistedEntities) do
-		if string.StartsWith(class, pattern) then
-			return true
-		end
-	end
-	return false
-end
-
--- Adds entities to the system
-local function AddEntity(ent)
-	timer.Simple(0, function()
-		if not IsValid(ent) then return end
-		if ent:EntIndex() == 0 then return end
-		if HasBlacklistedPatterns(ent:GetClass()) then return end
-		local physobj = ent:GetPhysicsObject()
-		if not IsValid(physobj) then return end
-
-		local GlobalEnts = TESTGRAVITY.GlobalEnts
-		GlobalEnts[ent] = true
-		ent:CallOnRemove("infmap_gravity", function()
-			GlobalEnts[ent] = nil
-		end)
-	end)
-end
-hook.Remove("OnEntityCreated", "InfMap.GravitySystem.AddEntity")
-hook.Add("OnEntityCreated", "InfMap.GravitySystem.AddEntity", AddEntity)
-
 
 --[[
 	sets the gravity to props that can (or potentially) move.
@@ -144,40 +55,12 @@ local function IsEntityInInfMapPlanet(ent)
 	return false
 end
 
---[[
-	I would had loved to not hack or interfiere with the gmod functions, but this time it was a need for this to work.
-	Since we need to avoid systems and people not to enable the gravity of props while they are in the void (aka low gravity or none) but the addon to control that only.
-
-	You can still disable the gravity of props inside of planets or where the gravity is present, and they will be gravityless at all times (unless its turned on), even if they go to space and return.
-	Just make sure to build your vehicles on earthlike gravity, to preserve the gravity bool during copy operations.
-]]
-local PHYSOBJ = FindMetaTable("PhysObj")
-PHYSOBJ.OriginalEnableGravity = PHYSOBJ.OriginalEnableGravity or PHYSOBJ.EnableGravity
-
-function PHYSOBJ:EnableGravity(bool, ...)
-	local ent = self:GetEntity()
-	if not IsValid(ent) then return end
-
-	local cgravity = ent.cgravityvalue
-	local HasOriginalDir = ent.cgravitydirection:GetNormalized() == Vector(0,0,1)
-	if cgravity == TESTGRAVITY_EARTH_GRAVITY and HasOriginalDir then
-
-		if not bool then
-			ent.CustomGravity = true
-		else
-			ent.CustomGravity = nil
-		end
-
-		self:OriginalEnableGravity(bool, ...)
-	elseif bool then
-		ent.CustomGravity = nil
-	end
-end
-
+local cmap = game.GetMap()
 local fakezero = 0.00000000000001 -- ply:SetGravity doenst remove the gravity at 0, but adding more zeroes does the trick, cool.
 local function EnvironmentCheck()
+	if not TESTGRAVITY.IsThisMapSupported() then return end
 
-	MapData = TESTGRAVITY.Maps[MapName]
+	local MapData = TESTGRAVITY.Maps[cmap]
 	PlanetData = MapData.Planets
 
 	local GlobalEnts = TESTGRAVITY.GlobalEnts
@@ -314,6 +197,7 @@ hook.Add("Think", "InfMap.GravitySystem.EnvironmentCheck", EnvironmentCheck)
 
 
 local function MonitorProps()
+	if not TESTGRAVITY.IsThisMapSupported() then return end
 
 	local prop_container = TESTGRAVITY.prop_container
 	for ent,_ in pairs(prop_container) do
