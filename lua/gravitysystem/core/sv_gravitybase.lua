@@ -1,4 +1,4 @@
-
+local GRAVSYSTEM = GRAVSYSTEM
 GRAVSYSTEM.prop_container = GRAVSYSTEM.prop_container or {}
 
 --[[
