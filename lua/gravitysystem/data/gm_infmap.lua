@@ -27,7 +27,7 @@ GRAVSYSTEM.RegisterPlanet( "earthtest", MapName, {
 	gravmaxheight = 6000000, -- maximum height before gravity is completely off.
 } )
 
-
+]]
 local MapName2 = "gm_infmap_earth_scaled"
 -- Supported maps. If your map needs gravity support, use the function below with the required info
 -- If infmaps planets are detected in the registered map, they will be automatically supported.
@@ -43,4 +43,3 @@ GRAVSYSTEM.RegisterPlanet( "scaledearth", MapName2, {
 	gravlossheight = 3000000, -- height where gravity starts to decrease. spherical type only.
 	gravmaxheight = 6000000, -- maximum height before gravity is completely off.
 } )
-]]

@@ -30,6 +30,7 @@ local function AddEntity(ent)
 
 		local GlobalEnts = GRAVSYSTEM.GlobalEnts
 		GlobalEnts[ent] = true
+
 		ent:CallOnRemove("infmap_gravity", function()
 			GlobalEnts[ent] = nil
 		end)

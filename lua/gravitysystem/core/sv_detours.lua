@@ -18,17 +18,17 @@ timer.Simple(0, function()
 		local ent = self:GetEntity()
 		if not IsValid(ent) then return end
 
-		local cgravity = ent.cgravityvalue
+		local cgravity = ent.cgravityvalue or GRAVSYSTEM_EARTH_GRAVITY
 		local normgravdir = isvector(ent.cgravitydirection) and ent.cgravitydirection:GetNormalized() or vector_up
 		local HasOriginalDir = normgravdir == vector_up
-		if cgravity == GRAVSYSTEM_EARTH_GRAVITY and HasOriginalDir then
+
+		if cgravity == GRAVSYSTEM_EARTH_GRAVITY and  HasOriginalDir then
 
 			if not bool then
 				ent.CustomGravity = true
 			else
 				ent.CustomGravity = nil
 			end
-
 			self:OriginalEnableGravity(bool, ...)
 		elseif bool then
 			ent.CustomGravity = nil
